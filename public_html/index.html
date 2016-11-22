@@ -1,0 +1,267 @@
+<!doctype html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7" lang=""> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8" lang=""> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9" lang=""> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang=""> <!--<![endif]-->
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <title></title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="apple-touch-icon" href="apple-touch-icon.png">
+
+        <link rel="stylesheet" href="css/bootstrap.min.css">
+        <style>
+            body {
+                padding-top: 50px;
+                padding-bottom: 20px;
+            }
+        </style>
+        <link rel="stylesheet" href="css/bootstrap-theme.min.css">
+        <link rel="stylesheet" href="css/main.css">
+
+        <script src="js/vendor/modernizr-2.8.3-respond-1.4.2.min.js"></script>
+        <script src="js/vendor/jquery-1.11.2.js"></script>
+        <style>
+            body {
+                font-family: "Lato", sans-serif;
+                text-align: center;
+                background-color: #FF7070;
+            }
+
+            .sidenav {
+                height: 100%;
+                width: 0;
+                position: fixed;
+                z-index: 1;
+                top: 0;
+                left: 0;
+                background-color: #111;
+                overflow-x: hidden;
+                transition: 0.5s;
+                padding-top: 60px;
+            }
+
+            .sidenav a {
+                padding: 8px 8px 8px 32px;
+                text-decoration: none;
+                font-size: 25px;
+                color: #818181;
+                display: block;
+                transition: 0.3s
+            }
+
+            .sidenav a:hover, .offcanvas a:focus{
+                color: #f1f1f1;
+            }
+
+            .sidenav .closebtn {
+                position: absolute;
+                top: 0;
+                right: 25px;
+                font-size: 36px;
+                margin-left: 50px;
+            }
+
+            @media screen and (max-height: 450px) {
+                .sidenav {padding-top: 15px;}
+                .sidenav a {font-size: 18px;}
+            }
+        </style>
+        <style>
+            input[type=text] {
+                width: 200px;
+                box-sizing: border-box;
+                border: 2px solid #ccc;
+                border-radius: 4px;
+                font-size: 16px;
+                background-color: white;
+
+                background-position: 10px 10px;
+                background-repeat: no-repeat;
+                padding: 12px 20px 12px 40px;
+
+            }
+
+            .icon:before {
+                font-family: 'MeteoconsRegular';
+                content: attr(data-icon);
+            }
+            #ser:hover{
+                cursor: pointer;
+            }
+        </style>
+    </head>
+    <body>
+        <!--[if lt IE 8]>
+            <p class="browserupgrade">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
+        <![endif]-->
+
+        <div id="mySidenav" class="sidenav" style="background-color:  #70FF91;">
+            <a href="javascript:void(0)" class="closebtn" style="color: #A970FF;;" onclick="closeNav()">&times;</a>
+            <a href="#" style="color: #A970FF;">your best weather app</a>
+
+            <a href="#" style="color: #A970FF;">social media</a>
+        </div>
+        <span style="font-size:30px; cursor:pointer; float: left;" onclick="openNav()">&#9776;</span>
+
+        <h4 style="margin-top: 100px;">type a location:</h4>
+
+        <form id="cityform">
+            <input id="city" type="text" style="background-color: #A970FF;" name="search" placeholder="type here...">
+            &nbsp;&nbsp;&nbsp; <img  src="img/search-icon.png" id="ser" alt="search" onclick="callbycity()">
+        </form>
+
+
+        <h4 style="margin-top: 70px;">or give us your location</h4>
+        <button type="button" class="btn " style="background-color: #70FF91; color: #A970FF; font-size: 25px;" data-toggle="modal" data-target="#exampleModal" onclick="getmy_geolocation();">access location</button>
+
+        <script>
+            function getmy_geolocation() { // ip-api.com
+                $.getJSON("http://ip-api.com/json/?callback=?", function (data) {
+                    var status = "fail";
+                    var mycity = "unknown";
+                    var mylat = "unknown";
+                    var mylon = "unknown";
+                    var mycc = "unknown";
+                    $.each(data, function (k, v) {
+                        if (k === 'status') {
+                            status = v;
+                        }
+                        if (k === 'city') {
+                            mycity = v;
+                        }
+                        if (k === 'lat') {
+                            mylat = v;
+                        }
+                        if (k === 'lon') {
+                            mylon = v;
+                        }
+                        if (k === 'countryCode') {
+                            mycc = v;
+                        }
+                    });
+                    if (status === 'success') {
+                        var apiurl = "http://api.openweathermap.org/data/2.5/weather?lat=" + mylat + "&lon=" + mylon + "&APPID=138f0e50104c2e04c9ad2aee5a4d58f2";
+                        $("#locatedcity").html(mycity + ", " + mycc);
+                        readResponce(apiurl);
+                    } else {
+                        $("#locatedcity").html("request failed: cannot get your location");
+                    }
+                });
+            }
+
+            function readResponce(apiurl) {
+                var max_temp = "9999";
+                var min_temp = "9999";
+                var weather_id = "unknown";
+                $.get(apiurl, function (data) {
+                    $.each(data, function (k, v) {
+                        if (k === 'weather') {
+                            $.each(v, function (q, z) {
+
+                                weather_id = z["id"];
+                            });
+                        }
+
+
+                        if (k === 'main') {
+                            $.each(v, function (q, z) {
+                                if (q === "temp_min") {
+                                    min_temp = z;
+                                }
+                                if (q === "temp_max") {
+                                    max_temp = z;
+                                }
+                            });
+                        }
+                    });
+
+                    var x1 = parseInt(max_temp, 10) - 273.15;
+                    var x2 = parseInt(min_temp, 10) - 273.15;
+
+                    $("#tempth").html(x1.toFixed(2));
+                    $("#temptl").html(x2.toFixed(2));
+
+                    if (weather_id === parseInt(800, 10)) {
+                        $("#weatherimg").html('<span class="icon" data-icon="B"></span>');
+                    } else if (parseInt(weather_id, 10) > parseInt("199", 10) && parseInt(weather_id, 10) < parseInt("300", 10)) {
+                        $("#weatherimg").html('<span class="icon" data-icon="0"></span>');
+                    } else if (parseInt(weather_id, 10) > parseInt("299", 10) && parseInt(weather_id, 10) < parseInt("400", 10)) {
+                        $("#weatherimg").html('<span class="icon" data-icon="Q"></span>');
+                    } else if (parseInt(weather_id, 10) > parseInt("499", 10) && parseInt(weather_id, 10) < parseInt("600", 10)) {
+                        $("#weatherimg").html('<span class="icon" data-icon="R"></span>');
+                    } else if (parseInt(weather_id, 10) > parseInt("599", 10) && parseInt(weather_id, 10) < parseInt("700", 10)) {
+                        $("#weatherimg").html('<span class="icon" data-icon="X"></span>');
+                    } else if (parseInt(weather_id, 10) > parseInt("699", 10) && parseInt(weather_id, 10) < parseInt("800", 10)) {
+                        $("#weatherimg").html('<span class="icon" data-icon="M"></span>');
+                    } else if (parseInt(weather_id, 10) > parseInt("800", 10)) {
+                        $("#weatherimg").html('<span class="icon" data-icon="H"></span>');
+                    } else {
+                        alert("sss");
+                    }
+                });
+            }
+
+
+            function callbycity() {
+                var values = document.getElementById("city").value;
+                if (values === "") {
+                    alert("Please insert a city...");
+                } else {
+                    var apiurl = "http://api.openweathermap.org/data/2.5/weather?q=" + values + "&APPID=138f0e50104c2e04c9ad2aee5a4d58f2";
+                    $("#exampleModal").modal();
+                    $("#locatedcity").html(values);
+                    readResponce(apiurl);
+
+                }
+            }
+
+        </script>
+        <script>
+            function openNav() {
+                document.getElementById("mySidenav").style.width = "250px";
+            }
+
+            function closeNav() {
+                document.getElementById("mySidenav").style.width = "0";
+            }
+        </script>
+
+
+        <div class="modal fade" id="exampleModal" style=""  role="dialog" aria-labelledby="gridSystemModalLabel">
+            <div class="modal-dialog modal-lg" role="document" >
+                <div class="modal-content" style="background-color: #A970FF;">
+                    <div class="modal-header" style="border: none;">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true" style="color: white;">&times;</span></button>
+                        <h4 class="modal-title" id="gridSystemModalLabel" style="color: #70FF91;">TODAY
+                            <br>
+                            <span id="locatedcity" style="color: white;"></span>
+                        </h4>
+
+                    </div>
+                    <div class="modal-body" style="padding-bottom: 100px;">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <p id="weatherimg" style="font-size: 200px; color: white;"></p>
+                                <p id="tempth" style="color: #70FF91;"></p>
+                                <p id="temptl" style="color: rgba(112, 255,145 ,0.7);"></p>
+                            </div>
+                        </div>
+
+                    </div>    
+                </div>
+
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+
+
+
+        <!--     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.js"></script>
+             <script>window.jQuery || document.write('<script src="js/vendor/jquery-1.11.2.js"><\/script>')</script>
+        -->
+        <script src="js/vendor/bootstrap.min.js"></script>
+        <script src="js/main.js"></script>
+    </body>
+</html>
